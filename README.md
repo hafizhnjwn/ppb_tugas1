@@ -1,4 +1,4 @@
-# ppb_tugas1
+# PPB (C) - Tugas 1
 
 ### Muhammad Hafizh Najwan Noor - 5025221278
 
