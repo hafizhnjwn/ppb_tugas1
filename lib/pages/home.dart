@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
         ),
         SizedBox(height: 20),
         Container(
-          height: 350,
+          height: 561,
           child: ListView.separated(
             itemCount: recipes.length,
             scrollDirection: Axis.vertical,
@@ -349,7 +349,7 @@ class _HomePageState extends State<HomePage> {
 
   Container searchBar() {
     return Container(
-      margin: EdgeInsets.only(top: 40, left: 20, right: 20),
+      margin: EdgeInsets.only(top: 20, left: 20, right: 20),
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
