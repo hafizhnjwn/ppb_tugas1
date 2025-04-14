@@ -56,4 +56,25 @@ class AppDatabase {
     final db = await instance.database;
     db.close();
   }
+
+  Future<List<Recipe>> getRecipes() async {
+    final db = await instance.database;
+    final result = await db.query(tableName);
+    return result.map((json) => Recipe.fromJson(json)).toList();
+  }
+
+  Future<Recipe> addRecipe(Recipe recipe) async {
+    final db = await instance.database;
+    final id = await db.insert(tableName, recipe.toJson());
+    return recipe.copyWith(id: id);
+  }
+
+  Future<void> deleteRecipe(int id) async {
+    final db = await instance.database;
+    await db.delete(
+      tableName,
+      where: '$idField = ?',
+      whereArgs: [id],
+    );
+  }
 }

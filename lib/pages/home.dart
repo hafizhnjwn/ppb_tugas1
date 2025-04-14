@@ -31,26 +31,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _getRecipes() async {
-    final dbRecipes = await AppDatabase.instance.readAllRecipes();
+    final dbRecipes = await AppDatabase.instance.getRecipes();
     setState(() {
       recipes = dbRecipes;
     });
   }
 
   Future<void> _addRecipe(Recipe recipe) async {
-    final newRecipe = await AppDatabase.instance.createRecipe(recipe);
+    final newRecipe = await AppDatabase.instance.addRecipe(recipe);
     setState(() {
       recipes.add(newRecipe);
     });
   }
 
   Future<void> _deleteRecipe(int id) async {
-    final db = await AppDatabase.instance.database;
-    await db.delete(
-      tableName,
-      where: '$idField = ?',
-      whereArgs: [id],
-    );
+    await AppDatabase.instance.deleteRecipe(id);
     _getRecipes();
   }
 
