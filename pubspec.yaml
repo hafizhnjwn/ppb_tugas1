@@ -35,6 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.17
+  sqflite: ^2.4.2
 
 dev_dependencies:
   flutter_test:
@@ -68,7 +69,6 @@ flutter:
     - assets/icons/Filter.svg
     - assets/icons/honey-pancakes.svg
     - assets/icons/orange-snacks.svg
-    - assets/icons/pancakes.svg
     - assets/icons/pie.svg
     - assets/icons/plate.svg
     - assets/icons/salmon-nigiri.svg

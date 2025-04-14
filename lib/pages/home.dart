@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ppb_tugas1/models/recipes_module.dart';
+import 'package:ppb_tugas1/models/recipe.dart';
+import 'package:ppb_tugas1/database/app_database.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -10,17 +12,51 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<RecipeList> recipes = [];
+  List<Recipe> recipes = [];
   bool isSearchBarVisible = false; // Controls search bar visibility
+  final List<String> menuIcons = [
+    'assets/icons/blueberry-pancake.svg',
+    'assets/icons/canai-bread.svg',
+    'assets/icons/honey-pancakes.svg',
+    'assets/icons/orange-snacks.svg',
+    'assets/icons/pie.svg',
+    'assets/icons/plate.svg',
+    'assets/icons/salmon-nigiri.svg',
+  ]; // Add all available icons here
 
   @override
   void initState() {
     super.initState();
-    _getRecipes(); // Initialize the list once
+    _getRecipes(); // Load recipes from the database
   }
 
-  void _getRecipes() {
-    recipes = RecipeList.getRecipes();
+  Future<void> _getRecipes() async {
+    final dbRecipes = await AppDatabase.instance.readAllRecipes();
+    setState(() {
+      recipes = dbRecipes;
+    });
+  }
+
+  Future<void> _addRecipe(Recipe recipe) async {
+    final newRecipe = await AppDatabase.instance.createRecipe(recipe);
+    setState(() {
+      recipes.add(newRecipe);
+    });
+  }
+
+  Future<void> _deleteRecipe(int id) async {
+    final db = await AppDatabase.instance.database;
+    await db.delete(
+      tableName,
+      where: '$idField = ?',
+      whereArgs: [id],
+    );
+    _getRecipes();
+  }
+
+  String _getRandomIcon() {
+    final random = Random();
+    return menuIcons[random.nextInt(menuIcons.length)];
   }
 
   @override
@@ -98,17 +134,13 @@ class _HomePageState extends State<HomePage> {
                     ),
                     TextButton(
                       onPressed: () {
-                        setState(() {
-                          recipes.add(
-                            RecipeList(
-                              name: nameController.text,
-                              text: textController.text,
-                              iconPath: 'assets/icons/default.svg',
-                              boxColor: Colors.green[200]!,
-                              viewIsSelected: false,
-                            ),
-                          );
-                        });
+                        final newRecipe = Recipe(
+                          name: nameController.text,
+                          text: textController.text,
+                          iconPath: _getRandomIcon(), // Random icon
+                          viewIsSelected: false,
+                        );
+                        _addRecipe(newRecipe);
                         Navigator.of(context).pop(); // Close the dialog
                       },
                       child: Text(
@@ -180,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SvgPicture.asset(
-                          recipes[index].iconPath,
+                          recipes[index].iconPath ?? 'assets/icons/default.svg',
                           width: 20,
                           height: 20,
                         ),
@@ -226,9 +258,7 @@ class _HomePageState extends State<HomePage> {
   GestureDetector deleteButton(int index) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          recipes.removeAt(index); // Remove the recipe
-        });
+        _deleteRecipe(recipes[index].id!);
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 10),
@@ -307,12 +337,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      setState(() {
-                        recipes[index].name =
-                            nameController.text; // Update name
-                        recipes[index].text =
-                            textController.text; // Update text
-                      });
+                      final updatedRecipe = recipes[index].copyWith(
+                        name: nameController.text,
+                        text: textController.text,
+                      );
+                      _addRecipe(updatedRecipe); // Update in database
                       Navigator.of(context).pop(); // Close the dialog
                     },
                     child: Text(
